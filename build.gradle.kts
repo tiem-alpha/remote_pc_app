@@ -25,3 +25,38 @@ extra["cmakeArguments"] = arrayOf(
     "-DWITH_CJSON=OFF",
     "-DWITH_OPENSSL=ON",
 )
+
+// Keep app-specific input changes tracked without modifying the pinned FreeRDP checkout.
+project(":freeRDPCore") {
+    val upstreamJava = layout.projectDirectory.dir("src/main/java")
+    val inputOverride = rootProject.layout.projectDirectory.dir("freerdp-overrides")
+    val prepareJava by tasks.registering(Sync::class) {
+        from(upstreamJava) {
+            exclude("com/freerdp/freerdpcore/presentation/SessionInputManager.java")
+            exclude("com/freerdp/freerdpcore/presentation/SessionActivity.java")
+            exclude("com/freerdp/freerdpcore/services/LibFreeRDP.java")
+        }
+        from(inputOverride)
+        into(layout.buildDirectory.dir("remotePcJava"))
+    }
+    val nativeOverrides = rootProject.layout.projectDirectory.dir("freerdp-native-overrides")
+    val prepareNative by tasks.registering(Sync::class) {
+        from(layout.projectDirectory.dir("src/main/cpp")) {
+            exclude(nativeOverrides.asFile.listFiles()!!.map { it.name })
+        }
+        from(nativeOverrides)
+        into(layout.buildDirectory.dir("remotePcCpp"))
+    }
+    plugins.withId("com.android.library") {
+        extensions.configure<com.android.build.api.dsl.LibraryExtension> {
+            namespace = "com.freerdp.freerdpcore"
+            sourceSets.getByName("main").java.setSrcDirs(listOf(prepareJava.map { it.destinationDir }))
+        }
+        tasks.named("preBuild").configure { dependsOn(prepareJava) }
+        tasks.configureEach {
+            if (name.startsWith("configureCMake") || name.startsWith("buildCMake") || name == "preBuild") {
+                dependsOn(prepareNative)
+            }
+        }
+    }
+}

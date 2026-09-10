@@ -26,3 +26,5 @@ rootProject.name = "RemotePc"
 include(":app")
 include(":freeRDPCore")
 project(":freeRDPCore").projectDir = file("third_party/freerdp/client/Android/Studio/freeRDPCore")
+
+project(":freeRDPCore").buildFileName = "../../../../../../freerdp-core.gradle"
