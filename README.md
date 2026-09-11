@@ -36,10 +36,11 @@ Không cần mở port Internet hoặc sửa Ubuntu ngoài GNOME Remote Desktop 
 
 - Chọn ô cần nhập trên remote, rồi bấm nút bàn phím để mở **Soạn văn bản**.
 - Chạm vào ô đệm để mở bàn phím. Gõ, dán hoặc dùng micro của bàn phím Android; có thể sửa dấu và xuống dòng ngay trong ô đệm.
-- Chọn kiểu dán phù hợp với ứng dụng đang nhận nội dung, rồi bấm **Gửi**. App chuyển toàn bộ văn bản qua clipboard Unicode, chờ remote xác nhận, gửi thao tác dán và đóng ô đệm. Không còn bước **Chuyển sang remote** hay nút **Dán** riêng.
+- Chọn kiểu dán phù hợp với ứng dụng đang nhận nội dung, rồi bấm **Gửi**. App chuyển toàn bộ văn bản qua clipboard Unicode, chờ remote xác nhận và gửi thao tác dán. Sau khi gửi thành công, ô đệm được xóa để nhập tiếp; hộp soạn và bàn phím đang mở được giữ nguyên cho đến khi người dùng đóng. Không còn bước **Chuyển sang remote** hay nút **Dán** riêng.
 - Mặc định **Terminal Linux (Ctrl+Shift+V)**. Các lựa chọn khác là **Windows / ứng dụng thường (Ctrl+V)**, **Shift+Insert** và **macOS (Command+V)**. App nhớ lựa chọn gần nhất; đổi lại khi chuyển sang ứng dụng có phím dán khác.
-- Bản nháp được giữ khi đóng ô đệm trong cùng phiên, kể cả khi gửi lỗi. Không tự mở bàn phím khi kết nối hoặc mở ô đệm.
+- Ô đệm và bản nháp được xóa sau khi gửi thao tác dán thành công. Bản nháp được giữ khi đóng ô đệm trong cùng phiên hoặc khi gửi lỗi. Không tự mở bàn phím khi kết nối hoặc mở ô đệm.
 - Không gửi phím Enter bổ sung. Văn bản nhiều dòng đi qua clipboard nguyên khối; việc terminal xử lý hoặc thực thi nội dung dán phụ thuộc terminal và shell.
+- Nút **Enter** trong hộp **Soạn văn bản** gửi trực tiếp một lần nhấn/thả Enter sang remote, kể cả khi ô đệm trống; giữ nguyên bản nháp và hộp soạn. Nút tạm khóa khi đang gửi văn bản.
 
 RDP không cung cấp lệnh Paste chung hay thông tin chắc chắn về ứng dụng đang có focus. Vì vậy không thể bảo đảm một kiểu dán chạy trên mọi hệ thống. Chế độ terminal gọi lệnh dán clipboard tương ứng với menu Paste của terminal có phím Ctrl+Shift+V; không mô phỏng nhấn chuột vào menu. Shift+Insert trên một số ứng dụng X11 lấy PRIMARY selection thay vì clipboard RDP, và Command+V phụ thuộc cách server macOS ánh xạ phím. Remote phải bật clipboard RDP và ứng dụng phải hỗ trợ kiểu dán đã chọn. App không thử liên tiếp nhiều kiểu dán vì có thể gây lặp nội dung hoặc kích hoạt lệnh khác.
 

@@ -191,6 +191,11 @@ public class SessionInputManager
 		int padding = (int)(20 * context.getResources().getDisplayMetrics().density);
 		layout.setPadding(padding, 0, padding, 0);
 		final EditText editor = new EditText(context);
+		// Keep IME focus while sending, but prevent changes to the in-flight draft.
+		editor.setFilters(new android.text.InputFilter[] {
+		    (source, start, end, dest, dstart, dend) ->
+		        textSender.isPending() ? dest.subSequence(dstart, dend) : null
+		});
 		editor.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
 		                    | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 		editor.setMinLines(4);
@@ -217,6 +222,7 @@ public class SessionInputManager
 		    .setTitle("Soạn văn bản")
 		    .setView(layout)
 		    .setPositiveButton("Gửi", null)
+		    .setNeutralButton("Enter", null)
 		    .setNegativeButton("Đóng", null)
 		    .create();
 		textDialog = dialog;
@@ -236,6 +242,20 @@ public class SessionInputManager
 		dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
 		                                  | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		dialog.setOnShowListener(ignored -> {
+			dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(view -> {
+				if (textSender.isPending()) return;
+				if (instance == 0) {
+					Toast.makeText(context, "Chưa kết nối máy remote.", Toast.LENGTH_LONG).show();
+					return;
+				}
+				keyboardMapper.reset(this);
+				// Send a physical Enter press, keeping the local draft and dialog intact.
+				boolean pressed = LibFreeRDP.sendKeyEvent(instance, 0x0D, true);
+				boolean released = LibFreeRDP.sendKeyEvent(instance, 0x0D, false);
+				if (!pressed || !released)
+					Toast.makeText(context, "Không gửi được Enter. Kiểm tra kết nối remote.",
+					               Toast.LENGTH_LONG).show();
+			});
 			editor.addTextChangedListener(new android.text.TextWatcher() {
 				public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 				public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -271,8 +291,8 @@ public class SessionInputManager
 	private void setTextSendBusy(boolean busy)
 	{
 		if (textDialog == null) return;
-		textEditor.setEnabled(!busy);
 		pasteModePicker.setEnabled(!busy);
+		textDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setEnabled(!busy);
 		textDialog.getButton(AlertDialog.BUTTON_POSITIVE).setText(busy ? "Đang gửi…" : "Gửi");
 		textDialog.getButton(AlertDialog.BUTTON_POSITIVE)
 		    .setEnabled(!busy && textEditor.length() > 0);
@@ -290,7 +310,9 @@ public class SessionInputManager
 		if (textSendTimeout != null) handler.removeCallbacks(textSendTimeout);
 		textSendTimeout = null;
 		if (result == TextSendCoordinator.Result.SENT) {
-			if (textDialog != null) textDialog.dismiss();
+			textDraft = "";
+			if (textEditor != null) textEditor.setText("");
+			setTextSendBusy(false);
 			return;
 		}
 		setTextSendBusy(false);

@@ -5,10 +5,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /** One explicit text send. Mutations run on the session's UI thread. */
 public final class TextSendCoordinator {
+    // FreeRDP maps side-specific virtual keys to scan codes; generic Ctrl/Shift map to zero.
     public enum PasteMode {
-        TERMINAL("Terminal Linux (Ctrl+Shift+V)", 0x11, 0x10, 0x56),
-        DESKTOP("Windows / ứng dụng thường (Ctrl+V)", 0x11, 0x56),
-        SHIFT_INSERT("Ứng dụng hỗ trợ Shift+Insert", 0x10, 0x2D),
+        TERMINAL("Terminal Linux (Ctrl+Shift+V)", 0xA2, 0xA0, 0x56),
+        DESKTOP("Windows / ứng dụng thường (Ctrl+V)", 0xA2, 0x56),
+        SHIFT_INSERT("Ứng dụng hỗ trợ Shift+Insert", 0xA0, 0x2D),
         MAC("macOS (Command+V)", 0x5B, 0x56);
 
         private final String label;

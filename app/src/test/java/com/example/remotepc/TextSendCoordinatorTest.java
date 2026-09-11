@@ -37,7 +37,7 @@ public class TextSendCoordinatorTest {
         sender.onClipboardReady(id + 1, true);
         assertTrue(transport.keys.isEmpty());
         sender.onClipboardReady(id, true);
-        assertEquals(Arrays.asList("17+", "16+", "86+", "86-", "16-", "17-"), transport.keys);
+        assertEquals(Arrays.asList("162+", "160+", "86+", "86-", "160-", "162-"), transport.keys);
         assertEquals("echo Tiếng Việt\n  dòng 2\n", transport.clipboard);
         assertEquals(Arrays.asList(Result.SENT), results);
         assertFalse(sender.isPending());
@@ -84,7 +84,7 @@ public class TextSendCoordinatorTest {
         assertTrue(sender.isPending());
         assertTrue(transport.keys.isEmpty());
         sender.onClipboardReady(newId, true);
-        assertEquals(Arrays.asList("16+", "45+", "45-", "16-"), transport.keys);
+        assertEquals(Arrays.asList("160+", "45+", "45-", "160-"), transport.keys);
     }
 
     @Test public void clipboardReplacementCancelsWithoutTryingAnotherShortcut() {
@@ -105,7 +105,7 @@ public class TextSendCoordinatorTest {
         TextSendCoordinator sender = new TextSendCoordinator(transport, results::add);
         long id = sender.begin("draft", PasteMode.TERMINAL);
         sender.onClipboardReady(id, true);
-        assertEquals(Arrays.asList("17+", "16+", "86+", "86-", "16-", "17-"), transport.keys);
+        assertEquals(Arrays.asList("162+", "160+", "86+", "86-", "160-", "162-"), transport.keys);
         assertEquals(Arrays.asList(Result.KEY_FAILED), results);
     }
 
@@ -115,7 +115,7 @@ public class TextSendCoordinatorTest {
             TextSendCoordinator sender = new TextSendCoordinator(transport, result -> {});
             long id = sender.begin("draft", mode);
             sender.onClipboardReady(id, true);
-            String modifier = mode == PasteMode.DESKTOP ? "17" : "91";
+            String modifier = mode == PasteMode.DESKTOP ? "162" : "91";
             assertEquals(Arrays.asList(modifier + "+", "86+", "86-", modifier + "-"), transport.keys);
         }
     }
